@@ -4,11 +4,13 @@ using EasyTablesPoc.Services;
 
 using Windows.ApplicationModel.Activation;
 using Windows.UI.Xaml;
+using Microsoft.WindowsAzure.MobileServices;
 
 namespace EasyTablesPoc
 {
     public sealed partial class App : Application
     {
+        public static MobileServiceClient MobileService = new MobileServiceClient("INSERT AZURE URL");
         private Lazy<ActivationService> _activationService;
 
         private ActivationService ActivationService
