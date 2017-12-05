@@ -114,9 +114,13 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Activation\ActivationHandler.cs" />
+    <Compile Include="GlobalSettings.cs" />
     <Compile Include="Helpers\Observable.cs" />
     <Compile Include="Helpers\RelayCommand.cs" />
-    <Compile Include="Models\Foods.cs" />
+    <Compile Include="Models\EasyTableBase.cs" />
+    <Compile Include="Services\MobileBaseService.cs" />
+    <Compile Include="Models\Food.cs" />
+    <Compile Include="Services\FoodService.cs" />
     <Compile Include="Services\ActivationService.cs" />
     <Compile Include="Activation\DefaultLaunchActivationHandler.cs" />
     <Compile Include="Services\NavigationService.cs" />
