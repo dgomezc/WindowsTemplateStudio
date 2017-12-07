@@ -4,7 +4,6 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-    xmlns:models="using:EasyTablesPoc.Models"
     Style="{StaticResource PageStyle}"
     x:Name="uc"
     mc:Ignorable="d">
@@ -23,14 +22,22 @@
             Style="{StaticResource PageTitleStyle}" />
 
         <Grid
-            Grid.Row="1" 
+            Grid.Row="1" Padding="20"
             Background="{ThemeResource SystemControlPageBackgroundChromeLowBrush}">
+
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto" MinWidth="400" />
+                <ColumnDefinition Width="20" />
+                <ColumnDefinition Width="Auto" MinWidth="400" />
+            </Grid.ColumnDefinitions>
+            
             <StackPanel>
+                <TextBlock Text="Items List" FontSize="24" Margin="0,15" />
                 <ListView
                     ItemsSource="{x:Bind ViewModel.Items, Mode=OneWay}"
                     SelectedItem="{x:Bind ViewModel.SelectedItem, Mode=TwoWay}">
                     <ListView.ItemTemplate>
-                        <DataTemplate x:DataType="models:Food">
+                        <DataTemplate>
                             <Grid>
                                 <Grid.ColumnDefinitions>
                                     <ColumnDefinition Width="200" />
@@ -41,17 +48,40 @@
                                     <TextBlock Text="{Binding Name}" FontWeight="Bold" />
                                     <TextBlock Text="{Binding Category}" />
                                 </StackPanel>
-                            </Grid>                            
+                            </Grid>
                         </DataTemplate>
                     </ListView.ItemTemplate>
                 </ListView>
-                <StackPanel Orientation="Horizontal" Margin="10">
+                <Button Content="Load Items" Command="{x:Bind ViewModel.LoadItemsCommand}" Width="200" />                
+            </StackPanel>
 
-                    <Button Content="Create" Command="{x:Bind ViewModel.AddItemCommand}" />
-                    <Button Content="Delete" Command="{x:Bind ViewModel.DeleteItemCommand}" />
-                    <Button Content="Load Items" Command="{x:Bind ViewModel.LoadItemsCommand}" />
-                    <TextBlock Text="Loading..." Visibility="{x:Bind ViewModel.IsBusy, Mode=OneWay}" Margin="15, 0" VerticalAlignment="Center"/>
+            <StackPanel Grid.Column="2">
+                <TextBlock Text="Details" FontSize="24" Margin="0,15" />
+
+                <TextBlock Text="Id: ">
+                    <Run Text="{x:Bind ViewModel.EditableItem.Id, Mode=OneWay}" />
+                </TextBlock>
+
+                <StackPanel Margin="0,10">
+                    <TextBlock Text="Name" />
+                    <TextBox Text="{x:Bind ViewModel.EditableItem.Name, Mode=TwoWay}"/>
                 </StackPanel>
+                
+                <StackPanel>
+                    <TextBlock Text="Category" />
+                    <TextBox Text="{x:Bind ViewModel.EditableItem.Category, Mode=TwoWay}"/>
+                </StackPanel>
+
+                <StackPanel Orientation="Horizontal" Margin="0,10,0,20">
+                    <Button Content="New" Command="{x:Bind ViewModel.NewItemCommand}" />
+                    <Button Content="Save" Command="{x:Bind ViewModel.SaveItemCommand}" />
+                    <Button Content="Delete" Command="{x:Bind ViewModel.DeleteItemCommand}" />
+                </StackPanel>
+
+                <TextBlock Text="Status: " FontWeight="Bold">
+                    <Run Text="{x:Bind ViewModel.StatusText, Mode=OneWay}" FontWeight="Normal" />
+                </TextBlock>
+                    
             </StackPanel>
         </Grid>
         <!--  Adaptive triggers  -->
