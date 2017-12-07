@@ -4,7 +4,9 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:models="using:EasyTablesPoc.Models"
     Style="{StaticResource PageStyle}"
+    x:Name="uc"
     mc:Ignorable="d">
     <Grid
         x:Name="ContentArea"
@@ -20,18 +22,36 @@
             x:Uid="Main_Title"
             Style="{StaticResource PageTitleStyle}" />
 
-        <Grid 
+        <Grid
             Grid.Row="1" 
             Background="{ThemeResource SystemControlPageBackgroundChromeLowBrush}">
             <StackPanel>
-                <ListView ItemsSource="{x:Bind ViewModel.Items}">
+                <ListView
+                    ItemsSource="{x:Bind ViewModel.Items, Mode=OneWay}"
+                    SelectedItem="{x:Bind ViewModel.SelectedItem, Mode=TwoWay}">
                     <ListView.ItemTemplate>
-                        <DataTemplate>
-                            <TextBlock Text="{Binding Name}" />
+                        <DataTemplate x:DataType="models:Food">
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="200" />
+                                    <ColumnDefinition Width="10" />
+                                    <ColumnDefinition Width="auto" />
+                                </Grid.ColumnDefinitions>
+                                <StackPanel Margin="0,10">
+                                    <TextBlock Text="{Binding Name}" FontWeight="Bold" />
+                                    <TextBlock Text="{Binding Category}" />
+                                </StackPanel>
+                            </Grid>                            
                         </DataTemplate>
                     </ListView.ItemTemplate>
                 </ListView>
-                <Button Content="Populate list" Command="{x:Bind ViewModel.PopulateListCommand}" />
+                <StackPanel Orientation="Horizontal" Margin="10">
+
+                    <Button Content="Create" Command="{x:Bind ViewModel.AddItemCommand}" />
+                    <Button Content="Delete" Command="{x:Bind ViewModel.DeleteItemCommand}" />
+                    <Button Content="Load Items" Command="{x:Bind ViewModel.LoadItemsCommand}" />
+                    <TextBlock Text="Loading..." Visibility="{x:Bind ViewModel.IsBusy, Mode=OneWay}" Margin="15, 0" VerticalAlignment="Center"/>
+                </StackPanel>
             </StackPanel>
         </Grid>
         <!--  Adaptive triggers  -->

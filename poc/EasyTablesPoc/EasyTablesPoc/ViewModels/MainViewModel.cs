@@ -4,29 +4,96 @@ using EasyTablesPoc.Services;
 using System.Collections.ObjectModel;
 using System.Threading.Tasks;
 using System.Windows.Input;
+using System.Linq;
 
 namespace EasyTablesPoc.ViewModels
 {
     public class MainViewModel : Observable
     {        
-        public ObservableCollection<Food> Items = new ObservableCollection<Food>();
+        private bool _isBusy;
+        public bool IsBusy
+        {
+            get => _isBusy;
+            set
+            {
+                Set(ref _isBusy, value);
+                AddItemCommand.OnCanExecuteChanged();
+                DeleteItemCommand.OnCanExecuteChanged();
+                LoadItemsCommand.OnCanExecuteChanged();
+            }
+        }
+
+        private ObservableCollection<Food> _items;
+        public ObservableCollection<Food> Items
+        {
+            get => _items;
+            set => Set(ref _items, value);
+        }
+
+        private Food _selectedItem;
+        public Food SelectedItem
+        {
+            get => _selectedItem;
+            set 
+            {
+                Set(ref _selectedItem, value);
+                DeleteItemCommand.OnCanExecuteChanged();
+            }
+        }
+
+        private RelayCommand _loadItemsCommand;
+        public RelayCommand LoadItemsCommand => _loadItemsCommand ?? (_loadItemsCommand = new RelayCommand(async () => await LoadItems(), () => !IsBusy));
+
+        private RelayCommand _addItemCommand;
+        public RelayCommand AddItemCommand => _addItemCommand ?? (_addItemCommand = new RelayCommand(async () => await AddItem(), () => !IsBusy));
+
+        private RelayCommand _deleteItemCommand;
+        public RelayCommand DeleteItemCommand => _deleteItemCommand ?? (_deleteItemCommand = new RelayCommand(async () => await DeleteItem(SelectedItem), () => SelectedItem != null && !IsBusy));
+        
         private readonly FoodService _service = FoodService.Instance;
 
         public MainViewModel()
         {
         }
-        
-        private ICommand _populateListCommand;
 
-        public ICommand PopulateListCommand => _populateListCommand ?? (_populateListCommand = new RelayCommand(async () => await PopulateList()));
-
-        private async Task PopulateList()
+        private async Task LoadItems()
         {
-            Items.Clear();
-            
-            foreach(var i in await _service.ReadAsync())
+            if (!IsBusy)
             {
-                Items.Add(i);
+                IsBusy = true;
+
+                var items = await _service.ReadAsync();
+                Items = new ObservableCollection<Food>(items);
+
+                IsBusy = false;
+            }
+        }
+
+        private async Task AddItem()
+        {
+            if (!IsBusy)
+            {
+                IsBusy = true;
+
+                await _service.AddOrUpdateAsync(new Food { Name = "Example Name", Category = "Example Category" });
+
+                IsBusy = false;
+
+                await LoadItems();
+            }
+        }
+
+        private async Task DeleteItem(Food item)
+        {
+            if (!IsBusy)
+            {
+                IsBusy = true;
+
+                await _service.DeleteAsync(item);
+
+                IsBusy = false;
+
+                await LoadItems();
             }
         }
     }
