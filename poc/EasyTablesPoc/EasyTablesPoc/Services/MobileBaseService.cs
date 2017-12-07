@@ -7,16 +7,11 @@ namespace EasyTablesPoc.Services
 {
     public abstract class MobileBaseService<T> where T : EasyTableBase
     {
-        private MobileServiceClient _client;
         private IMobileServiceTable<T> _table;        
 
         protected MobileBaseService()
         {
-            if (_client != null)
-                return;
-
-            _client = new MobileServiceClient(GlobalSettings.AzureServiceEndPoint);
-            _table = _client.GetTable<T>();
+            _table = App.MobileService.GetTable<T>();
         }
 
         public virtual async Task<IEnumerable<T>> ReadAsync()
