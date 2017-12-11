@@ -1,4 +1,5 @@
-﻿using EasyTablesPoc.Models;
+﻿using EasyTablesPoc.Helpers;
+using EasyTablesPoc.Models;
 using Microsoft.WindowsAzure.MobileServices;
 using Microsoft.WindowsAzure.MobileServices.SQLiteStore;
 using Microsoft.WindowsAzure.MobileServices.Sync;
@@ -28,7 +29,7 @@ namespace EasyTablesPoc.Services
 
             await _client.SyncContext.InitializeAsync(store, new MobileServiceSyncHandler());
 
-            if (HasInternet())
+            if (NetworkAvailabilty.Instance.IsNetworkAvailable)
             {
                 try
                 {
@@ -76,7 +77,7 @@ namespace EasyTablesPoc.Services
 
         private async Task SynchronizeItemAsync(string itemId)
         {
-            if (!HasInternet())
+            if (!NetworkAvailabilty.Instance.IsNetworkAvailable)
                 return;
 
             try
@@ -123,15 +124,6 @@ namespace EasyTablesPoc.Services
         protected virtual bool ItemsAreEquals(T serverItem, T localItem)
         {
             return serverItem.Id == localItem.Id;
-        }
-
-        private bool HasInternet()
-        {
-            var connectionProfile = NetworkInformation.GetInternetConnectionProfile();
-            var hasInternet = connectionProfile != null &&
-                    connectionProfile.GetNetworkConnectivityLevel() == NetworkConnectivityLevel.InternetAccess;
-
-            return hasInternet;
-        }
+        }        
     }
 }

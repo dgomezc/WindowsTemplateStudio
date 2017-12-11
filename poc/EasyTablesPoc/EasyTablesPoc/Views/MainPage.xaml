@@ -72,11 +72,14 @@
                     <TextBox Text="{x:Bind ViewModel.EditableFood.Category, Mode=TwoWay}"/>
                 </StackPanel>
 
-                <StackPanel Orientation="Horizontal" Margin="0,10,0,20"  HorizontalAlignment="Right">
-                    <Button Content="New" Command="{x:Bind ViewModel.NewFoodCommand}" />
-                    <Button Content="Save" Command="{x:Bind ViewModel.SaveFoodCommand}" Margin="5,0"/>
-                    <Button Content="Delete" Command="{x:Bind ViewModel.DeleteFoodCommand}"/>
-                </StackPanel>
+                <Grid Margin="0,10,0,20">
+                    <Button Content="New" Command="{x:Bind ViewModel.NewFoodCommand}" HorizontalAlignment="Left"/>
+                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+                        <Button Content="Save" Command="{x:Bind ViewModel.SaveFoodCommand}" Margin="5,0"/>
+                        <Button Content="Delete" Command="{x:Bind ViewModel.DeleteFoodCommand}"/>
+                    </StackPanel>
+                </Grid>
+                
 
                 <TextBlock Text="Status: " FontWeight="Bold">
                     <Run Text="{x:Bind ViewModel.StatusText, Mode=OneWay}" FontWeight="Normal" />

@@ -118,6 +118,7 @@
   <ItemGroup>
     <Compile Include="Activation\ActivationHandler.cs" />
     <Compile Include="GlobalSettings.cs" />
+    <Compile Include="Helpers\NetworkAvailabilty.cs" />
     <Compile Include="Helpers\Observable.cs" />
     <Compile Include="Helpers\RelayCommand.cs" />
     <Compile Include="Models\EasyTableBase.cs" />
