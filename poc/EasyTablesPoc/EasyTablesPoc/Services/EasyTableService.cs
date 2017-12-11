@@ -10,7 +10,7 @@ using Windows.Networking.Connectivity;
 
 namespace EasyTablesPoc.Services
 {
-    public abstract class MobileBaseService<T> where T : EasyTableBase
+    public abstract class EasyTableService<T> where T : EasyTableBase
     {
         private MobileServiceClient _client;
         private IMobileServiceSyncTable<T> _table;

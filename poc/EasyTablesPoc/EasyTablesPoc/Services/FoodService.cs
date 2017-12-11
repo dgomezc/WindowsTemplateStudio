@@ -2,7 +2,7 @@
 
 namespace EasyTablesPoc.Services
 {
-    public class FoodService : MobileBaseService<Food>
+    public class FoodService : EasyTableService<Food>
     {
         private static FoodService _instance;
         public static FoodService Instance => _instance ?? (_instance = new FoodService());

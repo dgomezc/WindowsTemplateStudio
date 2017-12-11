@@ -121,7 +121,7 @@
     <Compile Include="Helpers\Observable.cs" />
     <Compile Include="Helpers\RelayCommand.cs" />
     <Compile Include="Models\EasyTableBase.cs" />
-    <Compile Include="Services\MobileBaseService.cs" />
+    <Compile Include="Services\EasyTableService.cs" />
     <Compile Include="Models\Food.cs" />
     <Compile Include="Services\FoodService.cs" />
     <Compile Include="Services\ActivationService.cs" />
