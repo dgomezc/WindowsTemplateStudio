@@ -20,11 +20,10 @@ namespace EasyTablesPoc.Services
             if (_client != null)
                 return;
 
-
             var store = new MobileServiceSQLiteStore(GlobalSettings.SqliteDbName);
             store.DefineTable<T>();
 
-            _client = new MobileServiceClient(GlobalSettings.AzureServiceEndPoint);
+            _client = App.MobileService;
             _table = _client.GetSyncTable<T>();
 
             await _client.SyncContext.InitializeAsync(store, new MobileServiceSyncHandler());
@@ -102,7 +101,6 @@ namespace EasyTablesPoc.Services
 
         private async Task ResolveErrorAsync(MobileServiceTableOperationError result)
         {
-            // Ignoramos si no podemos validar ambas partes.
             if (result.Result == null || result.Item == null)
                 return;
 
@@ -111,12 +109,12 @@ namespace EasyTablesPoc.Services
 
             if (ItemsAreEquals(serverItem, localItem))
             {
-                // Los elementos son iguales, ignoramos el conflicto
+                // The elements are equals, ignore the conflict
                 await result.CancelAndDiscardItemAsync();
             }
             else
             {
-                // Para nosotros, gana el cliente
+                // Client win
                 localItem.AzureVersion = serverItem.AzureVersion;
                 await result.UpdateOperationAsync(JObject.FromObject(localItem));
             }
@@ -127,7 +125,7 @@ namespace EasyTablesPoc.Services
             return serverItem.Id == localItem.Id;
         }
 
-        public static bool HasInternet()
+        private bool HasInternet()
         {
             var connectionProfile = NetworkInformation.GetInternetConnectionProfile();
             var hasInternet = connectionProfile != null &&
