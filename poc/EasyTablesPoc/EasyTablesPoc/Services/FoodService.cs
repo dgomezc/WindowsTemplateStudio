@@ -10,5 +10,11 @@ namespace EasyTablesPoc.Services
         private FoodService()
         {
         }
+
+        protected override bool ItemsAreEquals(Food serverItem, Food localItem)
+        {
+            return base.ItemsAreEquals(serverItem, localItem)
+                && serverItem.Name == localItem.Name;
+        }
     }
 }
