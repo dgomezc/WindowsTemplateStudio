@@ -72,11 +72,16 @@
                         <Button Content="Delete" Command="{x:Bind ViewModel.DeleteTodoItemCommand}"/>
                     </StackPanel>
                 </Grid>
-
-
+                
                 <TextBlock Text="Status: " FontWeight="Bold">
                     <Run Text="{x:Bind ViewModel.StatusText, Mode=OneWay}" FontWeight="Normal" />
                 </TextBlock>
+
+                <StackPanel Orientation="Horizontal">
+                    <TextBlock Text="Internet: " FontWeight="Bold" Margin="0,0,10,0"/>
+                    <Ellipse Height="15" Width="15" Fill="Red" Visibility="{x:Bind ViewModel.NoInternet, Mode=OneWay}"/>
+                    <Ellipse Height="15" Width="15" Fill="Green" Visibility="{x:Bind ViewModel.IsInternet, Mode=OneWay}" />
+                </StackPanel>
 
             </StackPanel>
         </Grid>

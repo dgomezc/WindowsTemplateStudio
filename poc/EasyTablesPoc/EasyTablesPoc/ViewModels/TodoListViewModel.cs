@@ -1,9 +1,12 @@
 ﻿using EasyTablesPoc.Helpers;
 using EasyTablesPoc.Models;
 using EasyTablesPoc.Services;
+using System;
 using System.Collections.ObjectModel;
-using System.Threading.Tasks;
 using System.Linq;
+using System.Threading.Tasks;
+using Windows.ApplicationModel.Core;
+using Windows.UI.Core;
 
 namespace EasyTablesPoc.ViewModels
 {
@@ -15,6 +18,7 @@ namespace EasyTablesPoc.ViewModels
         private ObservableCollection<TodoItem> _todoItems;
         private TodoItem _editableTodoItem;
         private TodoItem _selectedTodoItem;
+        private bool _isInternet;
 
         private RelayCommand _loadTodoItemsCommand;
         private RelayCommand _newTodoItemCommand;
@@ -26,6 +30,11 @@ namespace EasyTablesPoc.ViewModels
         public TodoListViewModel()
         {
             CreateEmptyTodoItem();
+
+            IsInternet = InternetConnection.Instance.IsInternetAvailable;
+
+            InternetConnection.Instance.OnInternetAvailabilityChange += async (isInternet) =>
+            await CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(CoreDispatcherPriority.Normal, () => IsInternet = isInternet);
         }
 
         public bool IsBusy
@@ -75,6 +84,17 @@ namespace EasyTablesPoc.ViewModels
                 }
             }
         }
+
+        public bool IsInternet
+        {
+            get => _isInternet;
+            set
+            {
+                Set(ref _isInternet, value);
+                OnPropertyChanged(nameof(NoInternet));
+            }
+        }
+        public bool NoInternet => !IsInternet;
 
         public RelayCommand LoadTodoItemsCommand => _loadTodoItemsCommand ?? (_loadTodoItemsCommand = new RelayCommand(async () => await LoadTodoItemsAsync(), () => !IsBusy));
 

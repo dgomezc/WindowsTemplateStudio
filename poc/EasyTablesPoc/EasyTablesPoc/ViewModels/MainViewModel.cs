@@ -1,9 +1,12 @@
 ﻿using EasyTablesPoc.Helpers;
 using EasyTablesPoc.Models;
 using EasyTablesPoc.Services;
+using System;
 using System.Collections.ObjectModel;
-using System.Threading.Tasks;
 using System.Linq;
+using System.Threading.Tasks;
+using Windows.ApplicationModel.Core;
+using Windows.UI.Core;
 
 namespace EasyTablesPoc.ViewModels
 {
@@ -15,6 +18,7 @@ namespace EasyTablesPoc.ViewModels
         private ObservableCollection<Food> _foods;
         private Food _editableFood;
         private Food _selectedFood;
+        private bool _isInternet;
 
         private RelayCommand _loadFoodsCommand;
         private RelayCommand _newFoodCommand;
@@ -26,6 +30,11 @@ namespace EasyTablesPoc.ViewModels
         public MainViewModel()
         {
             CreateEmptyFood();
+
+            IsInternet = InternetConnection.Instance.IsInternetAvailable;
+
+            InternetConnection.Instance.OnInternetAvailabilityChange += async (isInternet) =>
+            await CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(CoreDispatcherPriority.Normal, () => IsInternet = isInternet);
         }
 
         public bool IsBusy
@@ -76,6 +85,17 @@ namespace EasyTablesPoc.ViewModels
             }
         }
 
+        public bool IsInternet
+        {
+            get => _isInternet;
+            set
+            {
+                Set(ref _isInternet, value);
+                OnPropertyChanged(nameof(NoInternet));
+            }
+        }
+        public bool NoInternet => !IsInternet;
+
         public RelayCommand LoadFoodsCommand => _loadFoodsCommand ?? (_loadFoodsCommand = new RelayCommand(async () => await LoadFoodsAsync(), () => !IsBusy));
 
         public RelayCommand NewFoodCommand => _newFoodCommand ?? (_newFoodCommand = new RelayCommand(CreateEmptyFood, () => !IsBusy));
@@ -86,7 +106,7 @@ namespace EasyTablesPoc.ViewModels
                 
         private async Task RefreshFoodsAsync()
         {
-            StatusText = "Loading foods from Azure Easy Tables...";
+            StatusText = "Loading foods...";
 
             var foods = await _service.ReadAsync();
             Foods = new ObservableCollection<Food>(foods);
