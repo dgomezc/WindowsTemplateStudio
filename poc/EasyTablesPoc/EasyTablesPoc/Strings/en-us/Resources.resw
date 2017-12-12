@@ -125,4 +125,12 @@
     <value>Main</value>
     <comment>Navigation view item name for Main</comment>
   </data>
+  <data name="TodoList_Title.Text" xml:space="preserve">
+    <value>TodoList</value>
+    <comment>Page title for TodoList</comment>
+  </data>
+  <data name="Shell_TodoList" xml:space="preserve">
+    <value>TodoList</value>
+    <comment>Navigation view item name for TodoList</comment>
+  </data>
 </root>

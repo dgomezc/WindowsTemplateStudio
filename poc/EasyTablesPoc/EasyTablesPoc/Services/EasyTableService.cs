@@ -13,23 +13,19 @@ namespace EasyTablesPoc.Services
 {
     public abstract class EasyTableService<T> where T : EasyTableBase
     {
-        private MobileServiceClient _client;
-        private IMobileServiceSyncTable<T> _table;
+        protected MobileServiceClient _client;
+        protected IMobileServiceSyncTable<T> _table;
 
-        public async Task InitializeAsync()
+        protected EasyTableService()
         {
-            if (_client != null)
-                return;
+            _client = MobileService.Instance.Client;
+            _table = MobileService.Instance.Client.GetSyncTable<T>();
+        }
 
-            var store = new MobileServiceSQLiteStore(GlobalSettings.SqliteDbName);
-            store.DefineTable<T>();
-
-            _client = App.MobileService;
-            _table = _client.GetSyncTable<T>();
-
-            await _client.SyncContext.InitializeAsync(store, new MobileServiceSyncHandler());
-
-            if (NetworkAvailabilty.Instance.IsNetworkAvailable)
+        public async Task SyncAsync()
+        {
+            await MobileService.Instance.InitializeAsync();
+            if (InternetConnection.Instance.IsInternetAvailable)
             {
                 try
                 {
@@ -45,13 +41,19 @@ namespace EasyTablesPoc.Services
 
         public virtual async Task<IEnumerable<T>> ReadAsync()
         {
-            await InitializeAsync();
+            await SyncAsync();
             return await _table.ReadAsync();
+        }
+
+        public virtual async Task<T> LookupAsync(string id)
+        {
+            await SyncAsync();
+            return await _table.LookupAsync(id);
         }
 
         public virtual async Task AddOrUpdateAsync(T item)
         {
-            await InitializeAsync();
+            await SyncAsync();
 
             if (string.IsNullOrEmpty(item.Id))
             {
@@ -67,17 +69,15 @@ namespace EasyTablesPoc.Services
 
         public virtual async Task DeleteAsync(T item)
         {
-            await InitializeAsync();
-
+            await SyncAsync();
             await _table.DeleteAsync(item);
-
             await SynchronizeItemAsync(item.Id);
 
         }
 
         private async Task SynchronizeItemAsync(string itemId)
         {
-            if (!NetworkAvailabilty.Instance.IsNetworkAvailable)
+            if (!InternetConnection.Instance.IsInternetAvailable)
                 return;
 
             try

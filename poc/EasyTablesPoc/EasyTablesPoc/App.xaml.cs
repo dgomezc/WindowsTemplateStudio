@@ -11,7 +11,6 @@ namespace EasyTablesPoc
     public sealed partial class App : Application
     {
         private Lazy<ActivationService> _activationService;
-        public static MobileServiceClient MobileService = new MobileServiceClient(GlobalSettings.AzureServiceEndPoint);
 
         private ActivationService ActivationService
         {

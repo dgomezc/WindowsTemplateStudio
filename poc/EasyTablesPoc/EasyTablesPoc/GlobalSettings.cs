@@ -4,6 +4,6 @@
     {
         public const string AzureServiceEndPoint = "INSERT AZURE URL";
 
-        public const string SqliteDbName = "wtsLocal.db";
+        public const string SqliteDbName = "localstore.db";
     }
 }
