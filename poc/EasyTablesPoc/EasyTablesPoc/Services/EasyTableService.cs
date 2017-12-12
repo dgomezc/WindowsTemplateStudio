@@ -15,6 +15,7 @@ namespace EasyTablesPoc.Services
     {
         protected MobileServiceClient _client;
         protected IMobileServiceSyncTable<T> _table;
+        protected ResolveConflictMode _resolveConflictMode = ResolveConflictMode.UpdateOperation;
 
         protected EasyTableService()
         {
@@ -32,9 +33,15 @@ namespace EasyTablesPoc.Services
                     await _client.SyncContext.PushAsync();
                     await _table.PullAsync($"all{typeof(T).Name}", _table.CreateQuery());
                 }
+                catch (MobileServicePushFailedException ex) when (ex.PushResult != null)
+                {
+                    foreach (var result in ex.PushResult.Errors)
+                    {
+                        await ResolveErrorAsync(result);
+                    }
+                }
                 catch (Exception)
                 {
-                    //TODO
                 }
             }
         }
@@ -85,14 +92,11 @@ namespace EasyTablesPoc.Services
                 await _client.SyncContext.PushAsync();
                 await _table.PullAsync($"sync{typeof(T).Name}" + itemId, _table.Where(r => r.Id == itemId));
             }
-            catch (MobileServicePushFailedException ex)
+            catch (MobileServicePushFailedException ex) when (ex.PushResult != null)
             {
-                if (ex.PushResult != null)
+                foreach (var result in ex.PushResult.Errors)
                 {
-                    foreach (var result in ex.PushResult.Errors)
-                    {
-                        await ResolveErrorAsync(result);
-                    }
+                    await ResolveErrorAsync(result);
                 }
             }
             catch (Exception)
@@ -103,27 +107,28 @@ namespace EasyTablesPoc.Services
         private async Task ResolveErrorAsync(MobileServiceTableOperationError result)
         {
             if (result.Result == null || result.Item == null)
+            {
                 return;
+            }
 
             var serverItem = result.Result.ToObject<T>();
             var localItem = result.Item.ToObject<T>();
 
-            if (ItemsAreEquals(serverItem, localItem))
+            switch(_resolveConflictMode)
             {
-                // The elements are equals, ignore the conflict
-                await result.CancelAndDiscardItemAsync();
-            }
-            else
-            {
-                // Client win
-                localItem.AzureVersion = serverItem.AzureVersion;
-                await result.UpdateOperationAsync(JObject.FromObject(localItem));
+                case ResolveConflictMode.CancelAndDiscard:
+                    await result.CancelAndDiscardItemAsync();
+                    break;
+
+                case ResolveConflictMode.CancelAndUpdate:
+                    await result.CancelAndUpdateItemAsync(JObject.FromObject(localItem));
+                    break;
+
+                case ResolveConflictMode.UpdateOperation:
+                    localItem.Version = serverItem.Version;
+                    await result.UpdateOperationAsync(JObject.FromObject(localItem));
+                    break;
             }
         }
-
-        protected virtual bool ItemsAreEquals(T serverItem, T localItem)
-        {
-            return serverItem.Id == localItem.Id;
-        }        
     }
 }

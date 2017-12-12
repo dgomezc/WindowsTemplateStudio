@@ -1,4 +1,5 @@
-﻿using EasyTablesPoc.Models;
+﻿using EasyTablesPoc.Helpers;
+using EasyTablesPoc.Models;
 
 namespace EasyTablesPoc.Services
 {
@@ -9,12 +10,7 @@ namespace EasyTablesPoc.Services
 
         private TodoItemService()
         {
-        }
-
-        protected override bool ItemsAreEquals(TodoItem serverItem, TodoItem localItem)
-        {
-            return base.ItemsAreEquals(serverItem, localItem)
-                && serverItem.Text == localItem.Text;
+            _resolveConflictMode = ResolveConflictMode.CancelAndUpdate;
         }
     }
 }

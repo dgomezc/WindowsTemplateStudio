@@ -32,6 +32,8 @@ namespace EasyTablesPoc.Services
         {
             Store.DefineTable<Food>();
             Store.DefineTable<TodoItem>();
+
+            //TODO - Register models to tables.
         }
     }
 }

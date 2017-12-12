@@ -121,6 +121,7 @@
     <Compile Include="Helpers\Observable.cs" />
     <Compile Include="Helpers\RelayCommand.cs" />
     <Compile Include="Models\EasyTableBase.cs" />
+    <Compile Include="Helpers\ResolveConflictMode.cs" />
     <Compile Include="Models\TodoItem.cs" />
     <Compile Include="Services\EasyTableService.cs" />
     <Compile Include="Models\Food.cs" />
