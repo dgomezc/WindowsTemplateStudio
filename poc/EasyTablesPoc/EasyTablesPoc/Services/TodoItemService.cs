@@ -1,5 +1,4 @@
-﻿using EasyTablesPoc.Helpers;
-using EasyTablesPoc.Models;
+﻿using EasyTablesPoc.Models;
 
 namespace EasyTablesPoc.Services
 {
@@ -10,7 +9,6 @@ namespace EasyTablesPoc.Services
 
         private TodoItemService()
         {
-            _resolveConflictMode = ResolveConflictMode.CancelAndUpdate;
         }
     }
 }

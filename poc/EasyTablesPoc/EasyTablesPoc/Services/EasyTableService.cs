@@ -1,13 +1,10 @@
 ﻿using EasyTablesPoc.Helpers;
 using EasyTablesPoc.Models;
 using Microsoft.WindowsAzure.MobileServices;
-using Microsoft.WindowsAzure.MobileServices.SQLiteStore;
 using Microsoft.WindowsAzure.MobileServices.Sync;
-using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using Windows.Networking.Connectivity;
 
 namespace EasyTablesPoc.Services
 {
@@ -15,14 +12,15 @@ namespace EasyTablesPoc.Services
     {
         protected MobileServiceClient _client;
         protected IMobileServiceSyncTable<T> _table;
-        protected ResolveConflictMode _resolveConflictMode = ResolveConflictMode.UpdateOperation;
+
+        public event Action<T, T> OnResolveConflict;
 
         protected EasyTableService()
         {
             _client = MobileService.Instance.Client;
             _table = MobileService.Instance.Client.GetSyncTable<T>();
         }
-
+        
         public async Task SyncAsync()
         {
             await MobileService.Instance.InitializeAsync();
@@ -35,9 +33,10 @@ namespace EasyTablesPoc.Services
                 }
                 catch (MobileServicePushFailedException ex) when (ex.PushResult != null)
                 {
-                    foreach (var result in ex.PushResult.Errors)
+                    foreach (var error in ex.PushResult.Errors)
                     {
-                        await ResolveErrorAsync(result);
+                        await ResolveErrorAsync(error);
+                        NotifyConflictResolution(error);
                     }
                 }
                 catch (Exception)
@@ -71,18 +70,17 @@ namespace EasyTablesPoc.Services
                 await _table.UpdateAsync(item);
             }
 
-            await SynchronizeItemAsync(item.Id);
+            await SyncItemAsync(item.Id);
         }
 
         public virtual async Task DeleteAsync(T item)
         {
             await SyncAsync();
             await _table.DeleteAsync(item);
-            await SynchronizeItemAsync(item.Id);
-
+            await SyncItemAsync(item.Id);
         }
 
-        private async Task SynchronizeItemAsync(string itemId)
+        private async Task SyncItemAsync(string itemId)
         {
             if (!InternetConnection.Instance.IsInternetAvailable)
                 return;
@@ -94,9 +92,10 @@ namespace EasyTablesPoc.Services
             }
             catch (MobileServicePushFailedException ex) when (ex.PushResult != null)
             {
-                foreach (var result in ex.PushResult.Errors)
+                foreach (var error in ex.PushResult.Errors)
                 {
-                    await ResolveErrorAsync(result);
+                    await ResolveErrorAsync(error);
+                    NotifyConflictResolution(error);
                 }
             }
             catch (Exception)
@@ -104,31 +103,23 @@ namespace EasyTablesPoc.Services
             }
         }
 
-        private async Task ResolveErrorAsync(MobileServiceTableOperationError result)
+        protected virtual async Task ResolveErrorAsync(MobileServiceTableOperationError error)
         {
-            if (result.Result == null || result.Item == null)
+            if (error.Result == null || error.Item == null)
             {
                 return;
             }
 
-            var serverItem = result.Result.ToObject<T>();
-            var localItem = result.Item.ToObject<T>();
+            //default, server win
+            await error.CancelAndUpdateItemAsync(error.Result);
+        }
 
-            switch(_resolveConflictMode)
-            {
-                case ResolveConflictMode.CancelAndDiscard:
-                    await result.CancelAndDiscardItemAsync();
-                    break;
+        private void NotifyConflictResolution(MobileServiceTableOperationError error)
+        {
+            var serverItem = error.Result.ToObject<T>();
+            var localItem = error.Item.ToObject<T>();
 
-                case ResolveConflictMode.CancelAndUpdate:
-                    await result.CancelAndUpdateItemAsync(JObject.FromObject(localItem));
-                    break;
-
-                case ResolveConflictMode.UpdateOperation:
-                    localItem.Version = serverItem.Version;
-                    await result.UpdateOperationAsync(JObject.FromObject(localItem));
-                    break;
-            }
+            OnResolveConflict?.Invoke(serverItem, localItem);
         }
     }
 }

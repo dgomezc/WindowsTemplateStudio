@@ -14,6 +14,7 @@ namespace EasyTablesPoc.ViewModels
     {
         private bool _isBusy;
         private string _statusText;
+        private string _errorText;
 
         private ObservableCollection<TodoItem> _todoItems;
         private TodoItem _editableTodoItem;
@@ -35,6 +36,16 @@ namespace EasyTablesPoc.ViewModels
 
             InternetConnection.Instance.OnInternetAvailabilityChange += async (isInternet) =>
             await CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(CoreDispatcherPriority.Normal, () => IsInternet = isInternet);
+
+            _service.OnResolveConflict += async (serverItem, localItem) => await _service_OnResolveConflict(serverItem, localItem);
+        }
+
+        private async Task _service_OnResolveConflict(TodoItem serverItem, TodoItem localItem)
+        {
+            await CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(CoreDispatcherPriority.Normal, () =>
+            {
+                ErrorText += $"Changes to item {localItem.Text} are revert since there is a new version on the server.\n";
+            });
         }
 
         public bool IsBusy
@@ -54,6 +65,12 @@ namespace EasyTablesPoc.ViewModels
         {
             get => _statusText;
             set => Set(ref _statusText, value);
+        }
+
+        public string ErrorText
+        {
+            get => _errorText;
+            set => Set(ref _errorText, value);
         }
 
         public ObservableCollection<TodoItem> TodoItems
@@ -116,6 +133,8 @@ namespace EasyTablesPoc.ViewModels
 
         private async Task LoadTodoItemsAsync()
         {
+            ErrorText = string.Empty;
+
             if (!IsBusy)
             {
                 IsBusy = true;
@@ -128,6 +147,8 @@ namespace EasyTablesPoc.ViewModels
 
         private async Task SaveTodoItemAsync()
         {
+            ErrorText = string.Empty;
+
             if (!IsBusy)
             {
                 IsBusy = true;
@@ -143,6 +164,8 @@ namespace EasyTablesPoc.ViewModels
 
         private async Task DeleteTodoItemAsync()
         {
+            ErrorText = string.Empty;
+
             if (!IsBusy)
             {
                 IsBusy = true;
