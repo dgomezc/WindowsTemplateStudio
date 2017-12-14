@@ -129,7 +129,6 @@
     <Compile Include="Activation\DefaultLaunchActivationHandler.cs" />
     <Compile Include="Services\MobileService.cs" />
     <Compile Include="Services\NavigationService.cs" />
-    <Compile Include="Services\TodoItemService.cs" />
     <Compile Include="ViewModels\MainViewModel.cs" />
     <Compile Include="ViewModels\ShellNavigationItem.cs" />
     <Compile Include="ViewModels\ShellViewModel.cs" />

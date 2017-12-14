@@ -26,11 +26,11 @@ namespace EasyTablesPoc.ViewModels
         private RelayCommand _saveTodoItemCommand;
         private RelayCommand _deleteTodoItemCommand;
 
-        private readonly TodoItemService _service = TodoItemService.Instance;
+        private readonly EasyTableService<TodoItem> _service;
 
         public TodoListViewModel()
         {
-            CreateEmptyTodoItem();
+            _service = new EasyTableService<TodoItem>();
 
             IsInternet = InternetConnection.Instance.IsInternetAvailable;
 
@@ -81,11 +81,12 @@ namespace EasyTablesPoc.ViewModels
 
         public TodoItem EditableTodoItem
         {
-            get => _editableTodoItem;
+            get => _editableTodoItem ?? (_editableTodoItem = new TodoItem());
             set
             {
                 Set(ref _editableTodoItem, value);
                 DeleteTodoItemCommand.OnCanExecuteChanged();
+                SaveTodoItemCommand.OnCanExecuteChanged();
             }
         }
 
@@ -95,10 +96,7 @@ namespace EasyTablesPoc.ViewModels
             set
             {
                 Set(ref _selectedTodoItem, value);
-                if (value != null)
-                {
-                    EditableTodoItem = value;
-                }
+                EditableTodoItem = value;
             }
         }
 
@@ -111,24 +109,26 @@ namespace EasyTablesPoc.ViewModels
                 OnPropertyChanged(nameof(NoInternet));
             }
         }
+
         public bool NoInternet => !IsInternet;
 
         public RelayCommand LoadTodoItemsCommand => _loadTodoItemsCommand ?? (_loadTodoItemsCommand = new RelayCommand(async () => await LoadTodoItemsAsync(), () => !IsBusy));
 
-        public RelayCommand NewTodoItemCommand => _newTodoItemCommand ?? (_newTodoItemCommand = new RelayCommand(CreateEmptyTodoItem, () => !IsBusy));
+        public RelayCommand NewTodoItemCommand => _newTodoItemCommand ?? (_newTodoItemCommand = new RelayCommand(() => EditableTodoItem = new TodoItem(), () => !IsBusy));
 
         public RelayCommand SaveTodoItemCommand => _saveTodoItemCommand ?? (_saveTodoItemCommand = new RelayCommand(async () => await SaveTodoItemAsync(), () => !IsBusy));
 
         public RelayCommand DeleteTodoItemCommand => _deleteTodoItemCommand ?? (_deleteTodoItemCommand = new RelayCommand(async () => await DeleteTodoItemAsync(), () => !IsBusy && CanDeleteTodoItem()));
 
-        private async Task RefreshTodoItemsAsync()
+        private async Task RefreshTodoItemsAsync(string selectedId = null)
         {
-            StatusText = "Loading todoItems from Azure Easy Tables...";
+            StatusText = "Loading todoItems...";
+
+            var selectedItemId = selectedId ?? SelectedTodoItem?.Id;
 
             var todoItems = await _service.ReadAsync();
             TodoItems = new ObservableCollection<TodoItem>(todoItems);
-
-            SelectedTodoItem = TodoItems.FirstOrDefault(i => i.Id == EditableTodoItem?.Id);
+            SelectedTodoItem = TodoItems.FirstOrDefault(i => i.Id == selectedItemId);
         }
 
         private async Task LoadTodoItemsAsync()
@@ -155,8 +155,8 @@ namespace EasyTablesPoc.ViewModels
                 StatusText = "Save todoItem...";
 
                 await _service.AddOrUpdateAsync(EditableTodoItem);
-                await RefreshTodoItemsAsync();
-
+                await RefreshTodoItemsAsync(EditableTodoItem.Id);
+                
                 IsBusy = false;
                 StatusText = "TodoItem saved completed!.";
             }
@@ -172,15 +172,12 @@ namespace EasyTablesPoc.ViewModels
                 StatusText = "Remove todoItem...";
 
                 await _service.DeleteAsync(EditableTodoItem);
-                EditableTodoItem = new TodoItem();
                 await RefreshTodoItemsAsync();
 
                 IsBusy = false;
                 StatusText = "Remove todoItem completed!.";
             }
         }
-
-        private void CreateEmptyTodoItem() => EditableTodoItem = new TodoItem();
 
         private bool CanDeleteTodoItem() => !string.IsNullOrEmpty(EditableTodoItem?.Id);
     }

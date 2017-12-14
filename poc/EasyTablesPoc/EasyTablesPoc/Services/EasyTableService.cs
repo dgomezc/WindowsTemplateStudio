@@ -8,14 +8,14 @@ using System.Threading.Tasks;
 
 namespace EasyTablesPoc.Services
 {
-    public abstract class EasyTableService<T> where T : EasyTableBase
+    public class EasyTableService<T> where T : EasyTableBase
     {
         protected MobileServiceClient _client;
         protected IMobileServiceSyncTable<T> _table;
 
         public event Action<T, T> OnResolveConflict;
 
-        protected EasyTableService()
+        public EasyTableService()
         {
             _client = MobileService.Instance.Client;
             _table = MobileService.Instance.Client.GetSyncTable<T>();
