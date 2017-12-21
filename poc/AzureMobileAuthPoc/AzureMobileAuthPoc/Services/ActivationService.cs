@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 
 using AzureMobileAuthPoc.Activation;
+using Microsoft.WindowsAzure.MobileServices;
 
 using Windows.ApplicationModel.Activation;
 using Windows.UI.Core;
@@ -29,6 +30,12 @@ namespace AzureMobileAuthPoc.Services
 
         public async Task ActivateAsync(object activationArgs)
         {
+            if (activationArgs is ProtocolActivatedEventArgs args && args.Kind == ActivationKind.Protocol)
+            {
+                MobileService.Instance.Client.ResumeWithURL(args.Uri);
+                return;
+            }
+
             if (IsInteractive(activationArgs))
             {
                 // Initialize things like registering background task before the app is loaded

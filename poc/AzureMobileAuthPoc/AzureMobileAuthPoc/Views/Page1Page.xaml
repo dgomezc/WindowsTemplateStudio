@@ -20,12 +20,16 @@
             x:Uid="Page1_Title"
             Style="{StaticResource PageTitleStyle}" />
 
-        <Grid 
+        <StackPanel 
             Grid.Row="1" 
             Background="{ThemeResource SystemControlPageBackgroundChromeLowBrush}">
             <!--The SystemControlPageBackgroundChromeLowBrush background represents where you should place your content. 
                 Place your content here.-->
-        </Grid>
+            <Button Content="Login" Command="{x:Bind ViewModel.LoginCommand}" />
+            <Button Content="Logout" Command="{x:Bind ViewModel.LogoutCommand}" />
+            <TextBlock Text="{x:Bind ViewModel.Message, Mode=OneWay}" />
+
+        </StackPanel>
         <!--  Adaptive triggers  -->
         <VisualStateManager.VisualStateGroups>
             <VisualStateGroup x:Name="WindowStates">
