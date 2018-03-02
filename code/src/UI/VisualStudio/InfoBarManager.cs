@@ -9,12 +9,12 @@ namespace Microsoft.Templates.UI.VisualStudio
 {
     public static class InfoBarManager
     {
+        private static IServiceProvider serviceProvider = ServiceProvider.GlobalProvider;
         private static IVsInfoBarUIElement currentInfoBarElement;
 
         public static void Show(string textInfo)
         {
             SafeThreading.JoinableTaskFactory.SwitchToMainThreadAsync();
-            IServiceProvider serviceProvider = ServiceProvider.GlobalProvider;
 
             var vsShell = (IVsShell)serviceProvider.GetService(typeof(SVsShell));
             var infoBarUIFactory = (IVsInfoBarUIFactory)serviceProvider.GetService(typeof(SVsInfoBarUIFactory));
@@ -43,6 +43,48 @@ namespace Microsoft.Templates.UI.VisualStudio
             {
                 currentInfoBarElement.Unadvise(eventCookie);
             }
+        }
+
+
+
+        private static bool TryCreateInfoBarUI(IVsInfoBar infoBar, out IVsInfoBarUIElement uiElement)
+        {
+            SafeThreading.JoinableTaskFactory.SwitchToMainThreadAsync();
+            IVsInfoBarUIFactory infoBarUIFactory = serviceProvider.GetService(typeof(SVsInfoBarUIFactory)) as IVsInfoBarUIFactory;
+            if (infoBarUIFactory == null)
+            {
+                uiElement = null;
+                return false;
+            }
+
+            uiElement = infoBarUIFactory.CreateInfoBar(infoBar);
+            return uiElement != null;
+        }
+
+        private static void AddInfoBar(IVsWindowFrame frame, IVsUIElement uiElement)
+        {
+            SafeThreading.JoinableTaskFactory.SwitchToMainThreadAsync();
+
+            IVsInfoBarHost infoBarHost;
+            if (TryGetInfoBarHost(frame, out infoBarHost))
+            {
+                infoBarHost.AddInfoBar(uiElement);
+            }
+        }
+
+        private static bool TryGetInfoBarHost(IVsWindowFrame frame, out IVsInfoBarHost infoBarHost)
+        {
+            SafeThreading.JoinableTaskFactory.SwitchToMainThreadAsync();
+
+            object infoBarHostObj;
+            if (ErrorHandler.Failed(frame.GetProperty((int)__VSFPROPID7.VSFPROPID_InfoBarHost, out infoBarHostObj)))
+            {
+                infoBarHost = null;
+                return false;
+            }
+
+            infoBarHost = infoBarHostObj as IVsInfoBarHost;
+            return infoBarHost != null;
         }
 
         private sealed class InfoBarUIEvents : IVsInfoBarUIEvents

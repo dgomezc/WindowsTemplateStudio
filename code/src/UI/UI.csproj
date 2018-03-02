@@ -468,6 +468,9 @@
       <DependentUpon>WizardShell.xaml</DependentUpon>
     </Compile>
     <Compile Include="VisualStudio\InfoBarManager.cs" />
+    <Compile Include="VisualStudio\InfoBar\InfoBarEvents.cs" />
+    <Compile Include="VisualStudio\InfoBar\InfoBarItem.cs" />
+    <Compile Include="VisualStudio\InfoBar\InfoBarService.cs" />
     <Compile Include="VisualStudio\RightClickActions.cs" />
     <Compile Include="VisualStudio\SolutionWizard.cs" />
     <Compile Include="VisualStudio\SolutionWizardCS.cs" />
