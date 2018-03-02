@@ -468,6 +468,8 @@
       <DependentUpon>WizardShell.xaml</DependentUpon>
     </Compile>
     <Compile Include="VisualStudio\InfoBarManager.cs" />
+    <Compile Include="VisualStudio\InfoBar\FakeInfoBarService.cs" />
+    <Compile Include="VisualStudio\InfoBar\IInfoBarService.cs" />
     <Compile Include="VisualStudio\InfoBar\InfoBarEvents.cs" />
     <Compile Include="VisualStudio\InfoBar\InfoBarItem.cs" />
     <Compile Include="VisualStudio\InfoBar\InfoBarService.cs" />

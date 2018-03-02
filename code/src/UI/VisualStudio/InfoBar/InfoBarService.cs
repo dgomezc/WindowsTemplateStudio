@@ -13,7 +13,7 @@ using Microsoft.VisualStudio.Shell.Interop;
 
 namespace Microsoft.Templates.UI.VisualStudio.InfoBar
 {
-    public class InfoBarService
+    public class InfoBarService : IInfoBarService
     {
         private readonly IServiceProvider _serviceProvider;
 
@@ -22,17 +22,22 @@ namespace Microsoft.Templates.UI.VisualStudio.InfoBar
             _serviceProvider = serviceProvider ?? ServiceProvider.GlobalProvider;
         }
 
-        public void ShowInfoBarInActiveView(string message, params InfoBarItem[] items)
+        public void ShowInfoBar(string message, InfoBarItem[] items)
+        {
+            ShowInfoBarInActiveView(message, items);
+        }
+
+        public void ShowInfoBarInActiveView(string message, InfoBarItem[] items)
         {
             ShowInfoBar(true, message, items);
         }
 
-        public void ShowInfoBarInGlobalView(string message, params InfoBarItem[] items)
+        public void ShowInfoBarInGlobalView(string message, InfoBarItem[] items)
         {
             ShowInfoBar(false, message, items);
         }
 
-        private void ShowInfoBar(bool activeView, string message, params InfoBarItem[] items)
+        private void ShowInfoBar(bool activeView, string message, InfoBarItem[] items)
         {
             if (TryGetInfoBarData(activeView, out var infoBarHost))
             {
