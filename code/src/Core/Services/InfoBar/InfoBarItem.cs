@@ -4,7 +4,7 @@
 
 using System;
 
-namespace Microsoft.Templates.UI.VisualStudio.InfoBar
+namespace Microsoft.Templates.Core.Services.InfoBar
 {
     public class InfoBarItem
     {

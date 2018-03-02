@@ -5,6 +5,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Microsoft.Templates.Core.Services.InfoBar;
 using Microsoft.Templates.UI.Threading;
 using Microsoft.VisualStudio;
 using Microsoft.VisualStudio.Imaging;

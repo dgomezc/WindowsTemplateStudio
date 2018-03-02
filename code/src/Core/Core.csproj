@@ -311,6 +311,8 @@
     </Compile>
     <Compile Include="PostActions\NewItemPostActionFactory.cs" />
     <Compile Include="PostActions\NewProjectPostActionFactory.cs" />
+    <Compile Include="Services\InfoBar\IInfoBarService.cs" />
+    <Compile Include="Services\InfoBar\InfoBarItem.cs" />
     <Compile Include="Templates\ITemplateInfoExtensions.cs" />
     <Compile Include="Locations\TemplatesSynchronization.cs" />
     <Compile Include="Packaging\SignCertNotFoundException.cs" />

@@ -8,7 +8,7 @@ using System.Linq;
 using System.Windows;
 
 using Microsoft.Templates.Core.Gen;
-
+using Microsoft.Templates.Fakes.Services;
 using Microsoft.VisualStudio.TemplateWizard;
 
 namespace Microsoft.Templates.Fakes
@@ -40,6 +40,8 @@ namespace Microsoft.Templates.Fakes
             _changeStatus = changeStatus;
             _addLog = addLog;
             _owner = owner;
+
+            InfobarService = new FakeInfoBarService();
         }
 
         public void SetCurrentLanguage(string language)

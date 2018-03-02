@@ -5,6 +5,7 @@
 using System;
 using System.IO;
 using System.Windows;
+using Microsoft.Templates.Core.Services.InfoBar;
 
 namespace Microsoft.Templates.Core.Gen
 {
@@ -49,6 +50,8 @@ namespace Microsoft.Templates.Core.Gen
         public abstract string GetActiveProjectGuid();
 
         public abstract void OpenItems(params string[] itemsFullPath);
+
+        public IInfoBarService InfobarService { get; protected set; }
 
         public virtual void RestorePackages()
         {

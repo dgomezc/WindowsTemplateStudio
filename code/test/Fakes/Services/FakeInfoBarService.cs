@@ -2,7 +2,9 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 // See the LICENSE file in the project root for more information.
 
-namespace Microsoft.Templates.UI.VisualStudio.InfoBar
+using Microsoft.Templates.Core.Services.InfoBar;
+
+namespace Microsoft.Templates.Fakes.Services
 {
     public class FakeInfoBarService : IInfoBarService
     {

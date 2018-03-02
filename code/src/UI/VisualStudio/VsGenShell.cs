@@ -13,6 +13,7 @@ using Microsoft.Templates.Core.Diagnostics;
 using Microsoft.Templates.Core.Gen;
 using Microsoft.Templates.UI.Resources;
 using Microsoft.Templates.UI.Threading;
+using Microsoft.Templates.UI.VisualStudio.InfoBar;
 using Microsoft.VisualStudio;
 using Microsoft.VisualStudio.ComponentModelHost;
 using Microsoft.VisualStudio.Setup.Configuration;
@@ -25,6 +26,11 @@ namespace Microsoft.Templates.UI.VisualStudio
 {
     public class VsGenShell : GenShell
     {
+        public VsGenShell()
+        {
+            InfobarService = new InfoBarService(ServiceProvider.GlobalProvider);
+        }
+
         private Lazy<DTE> _dte = new Lazy<DTE>(() => ServiceProvider.GlobalProvider.GetService(typeof(DTE)) as DTE, true);
 
         private DTE Dte => _dte.Value;
