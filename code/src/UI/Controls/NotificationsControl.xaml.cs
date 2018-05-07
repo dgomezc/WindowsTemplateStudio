@@ -7,6 +7,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Windows;
+using System.Windows.Automation;
+using System.Windows.Automation.Peers;
 using System.Windows.Controls;
 using Microsoft.Templates.UI.Extensions;
 
@@ -190,6 +192,9 @@ namespace Microsoft.Templates.UI.Controls
             Notification = _notifications.First();
             await fakeGrid.AnimateDoublePropertyAsync("Height", 50, 0, 500);
             Notification.StartCloseTimer();
+
+            var peer = FrameworkElementAutomationPeer.FromElement(myContent);
+            peer.RaiseAutomationEvent(AutomationEvents.LiveRegionChanged);
         }
 
         private void RemoveCategoryNotifications(Category category)

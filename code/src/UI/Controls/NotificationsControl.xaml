@@ -70,12 +70,13 @@
 
     <Grid Height="50" VerticalAlignment="Top">
         <StackPanel VerticalAlignment="Bottom">
-            <ContentControl
+            <ContentControl 
                 Height="50"
                 Focusable="False"
                 Content="{Binding Notification, RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type local:NotificationsControl}}}"
                 ContentTemplateSelector="{StaticResource NotificationTemplateSelector}" />
             <Grid x:Name="fakeGrid" Height="50"/>
+            <TextBlock Text="{Binding Notification.Message, RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type local:NotificationsControl}}}" x:Name="myContent" AutomationProperties.LiveSetting="Assertive"/>
         </StackPanel>
     </Grid>
 
