@@ -394,33 +394,6 @@ namespace Microsoft.Templates.VsEmulator.Main
             }
         }
 
-        private void AddNewFeature()
-        {
-            TempGenerationPath = GenContext.GetTempGenerationPath(GenContext.Current.ProjectName);
-            ClearContext();
-
-            try
-            {
-                var userSelection = NewItemGenController.Instance.GetUserSelectionNewFeature(GenContext.CurrentLanguage, Services.FakeStyleValuesProvider.Instance);
-
-                if (userSelection != null)
-                {
-                    NewItemGenController.Instance.FinishGeneration(userSelection);
-                    OnPropertyChanged(nameof(TempFolderAvailable));
-                    GenContext.ToolBox.Shell.ShowStatusBarMessage("Item created!!!");
-                }
-            }
-            catch (WizardBackoutException)
-            {
-                CleanUp();
-                GenContext.ToolBox.Shell.ShowStatusBarMessage("Wizard back out");
-            }
-            catch (WizardCancelledException)
-            {
-                GenContext.ToolBox.Shell.ShowStatusBarMessage("Wizard cancelled");
-            }
-        }
-
         private void ClearContext()
         {
             ProjectItems.Clear();
@@ -429,14 +402,17 @@ namespace Microsoft.Templates.VsEmulator.Main
             FilesToOpen.Clear();
         }
 
-        private void AddNewPage()
+        private void AddNewPage() => AddNewItem(NewItemType.Page);
+
+        private void AddNewFeature() => AddNewItem(NewItemType.Feature);
+
+        private void AddNewItem(NewItemType itemType)
         {
             TempGenerationPath = GenContext.GetTempGenerationPath(GenContext.Current.ProjectName);
             ClearContext();
             try
             {
-                var userSelection = NewItemGenController.Instance.GetUserSelectionNewPage(GenContext.CurrentLanguage, Services.FakeStyleValuesProvider.Instance);
-
+                var userSelection = GetUserSelectionByItemType(itemType);
                 if (userSelection != null)
                 {
                     NewItemGenController.Instance.FinishGeneration(userSelection);
@@ -453,6 +429,13 @@ namespace Microsoft.Templates.VsEmulator.Main
             {
                 GenContext.ToolBox.Shell.ShowStatusBarMessage("Wizard cancelled");
             }
+        }
+
+        private UserSelection GetUserSelectionByItemType(NewItemType itemType)
+        {
+            return itemType == NewItemType.Page
+                ? NewItemGenController.Instance.GetUserSelectionNewPage(GenContext.CurrentLanguage, Services.FakeStyleValuesProvider.Instance)
+                : NewItemGenController.Instance.GetUserSelectionNewFeature(GenContext.CurrentLanguage, Services.FakeStyleValuesProvider.Instance);
         }
 
         private void LoadProject()

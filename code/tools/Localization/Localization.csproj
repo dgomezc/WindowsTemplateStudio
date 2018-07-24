@@ -98,6 +98,7 @@
     <Compile Include="Extensions\ResourcesExtensions.cs" />
     <Compile Include="Extensions\RoutesExtensions.cs" />
     <Compile Include="Extensions\RoutesManager.cs" />
+    <Compile Include="HelpStrings.cs" />
     <Compile Include="Logic\CatalogLocalizationValue.cs" />
     <Compile Include="Logic\OriginalLocalizableItemsExtractor.cs" />
     <Compile Include="Logic\ProjectTemplateGeneratorConfig.cs" />

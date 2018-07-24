@@ -563,9 +563,10 @@ namespace Microsoft.Templates.UI.Controls
 
             string header = match.Groups[1].Value;
             int level = match.Groups[2].Value.StartsWith("=", StringComparison.Ordinal) ? 1 : 2;
+            var style = GetHeaderStyleByLevel(level);
 
             // TODO: Style the paragraph based on the header level
-            return CreateHeader(level, RunSpanGamut(header.Trim()));
+            return CreateHeader(style, RunSpanGamut(header.Trim()));
         }
 
         private Block AtxHeaderEvaluator(Match match)
@@ -577,10 +578,11 @@ namespace Microsoft.Templates.UI.Controls
 
             string header = match.Groups[2].Value;
             int level = match.Groups[1].Value.Length;
-            return CreateHeader(level, RunSpanGamut(header));
+            var style = GetHeaderStyleByLevel(level);
+            return CreateHeader(style, RunSpanGamut(header));
         }
 
-        public Block CreateHeader(int level, IEnumerable<Inline> content)
+        public Block CreateHeader(Style headerStyle, IEnumerable<Inline> content)
         {
             if (content == null)
             {
@@ -589,42 +591,29 @@ namespace Microsoft.Templates.UI.Controls
 
             var block = Create<Paragraph, Inline>(content);
 
-            switch (level)
+            if (headerStyle != null)
             {
-                case 1:
-                    if (Heading1Style != null)
-                    {
-                        block.Style = Heading1Style;
-                    }
-
-                    break;
-
-                case 2:
-                    if (Heading2Style != null)
-                    {
-                        block.Style = Heading2Style;
-                    }
-
-                    break;
-
-                case 3:
-                    if (Heading3Style != null)
-                    {
-                        block.Style = Heading3Style;
-                    }
-
-                    break;
-
-                case 4:
-                    if (Heading4Style != null)
-                    {
-                        block.Style = Heading4Style;
-                    }
-
-                    break;
+                block.Style = headerStyle;
             }
 
             return block;
+        }
+
+        private Style GetHeaderStyleByLevel(int level)
+        {
+            switch (level)
+            {
+                case 1:
+                    return Heading1Style;
+                case 2:
+                    return Heading2Style;
+                case 3:
+                    return Heading3Style;
+                case 4:
+                    return Heading4Style;
+                default:
+                    return null;
+            }
         }
 
         private static Regex _horizontalRules = new Regex(

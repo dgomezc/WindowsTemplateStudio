@@ -44,37 +44,17 @@ namespace Microsoft.Templates.UI
 
         public UserSelection GetUserSelectionNewFeature(string language, BaseStyleValuesProvider provider)
         {
-            var newItem = new Views.NewItem.WizardShell(TemplateType.Feature, language, provider);
-            try
-            {
-                CleanStatusBar();
-
-                GenContext.ToolBox.Shell.ShowModal(newItem);
-                if (newItem.Result != null)
-                {
-                    TrackWizardCompletedTelemery(WizardTypeEnum.AddFeature, newItem.Result.ItemGenerationType);
-
-                    return newItem.Result;
-                }
-                else
-                {
-                    AppHealth.Current.Telemetry.TrackWizardCancelledAsync(WizardTypeEnum.AddFeature, GenContext.ToolBox.Shell.GetVsVersion(), GenContext.ToolBox.Repo.SyncInProgress).FireAndForget();
-                }
-            }
-            catch (Exception ex) when (!(ex is WizardBackoutException))
-            {
-                newItem.SafeClose();
-                ShowError(ex);
-            }
-
-            GenContext.ToolBox.Shell.CancelWizard();
-
-            return null;
+            return GetUserSelectionItem(language, provider, TemplateType.Feature, WizardTypeEnum.AddFeature);
         }
 
         public UserSelection GetUserSelectionNewPage(string language, BaseStyleValuesProvider provider)
         {
-            var newItem = new Views.NewItem.WizardShell(TemplateType.Page, language, provider);
+            return GetUserSelectionItem(language, provider, TemplateType.Page, WizardTypeEnum.AddPage);
+        }
+
+        private UserSelection GetUserSelectionItem(string language, BaseStyleValuesProvider provider, TemplateType templateType, WizardTypeEnum wizardType)
+        {
+            var newItem = new Views.NewItem.WizardShell(templateType, language, provider);
             try
             {
                 CleanStatusBar();
@@ -82,13 +62,13 @@ namespace Microsoft.Templates.UI
                 GenContext.ToolBox.Shell.ShowModal(newItem);
                 if (newItem.Result != null)
                 {
-                    TrackWizardCompletedTelemery(WizardTypeEnum.AddPage, newItem.Result.ItemGenerationType);
+                    TrackWizardCompletedTelemery(wizardType, newItem.Result.ItemGenerationType);
 
                     return newItem.Result;
                 }
                 else
                 {
-                    AppHealth.Current.Telemetry.TrackWizardCancelledAsync(WizardTypeEnum.AddPage, GenContext.ToolBox.Shell.GetVsVersion(), GenContext.ToolBox.Repo.SyncInProgress).FireAndForget();
+                    AppHealth.Current.Telemetry.TrackWizardCancelledAsync(wizardType, GenContext.ToolBox.Shell.GetVsVersion(), GenContext.ToolBox.Repo.SyncInProgress).FireAndForget();
                 }
             }
             catch (Exception ex) when (!(ex is WizardBackoutException))

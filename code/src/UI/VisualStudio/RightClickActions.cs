@@ -48,63 +48,53 @@ namespace Microsoft.Templates.UI.VisualStudio
             _shell = new VsGenShell();
         }
 
-        public void AddNewPage()
+        public void AddNewPage() => AddNewItem(NewItemType.Page);
+
+        public void AddNewFeature() => AddNewItem(NewItemType.Feature);
+
+        public void AddNewItem(NewItemType itemType)
         {
-            if (_shell.GetActiveProjectIsWts())
+            if (!_shell.GetActiveProjectIsWts())
             {
-                SetContext();
+                return;
+            }
 
-                try
+            SetContext();
+            try
+            {
+                var userSelection = GetUserSelectionByItemType(itemType);
+                if (userSelection != null)
                 {
-                    var userSelection = NewItemGenController.Instance.GetUserSelectionNewPage(_shell.GetActiveProjectLanguage(), new VSStyleValuesProvider());
-
-                    if (userSelection != null)
+                    SafeThreading.JoinableTaskFactory.Run(
+                    async () =>
                     {
-                        SafeThreading.JoinableTaskFactory.Run(
-                        async () =>
-                        {
-                            await SafeThreading.JoinableTaskFactory.SwitchToMainThreadAsync();
-                            NewItemGenController.Instance.FinishGeneration(userSelection);
-                        },
-                        JoinableTaskCreationOptions.LongRunning);
+                        await SafeThreading.JoinableTaskFactory.SwitchToMainThreadAsync();
+                        NewItemGenController.Instance.FinishGeneration(userSelection);
+                    },
+                    JoinableTaskCreationOptions.LongRunning);
 
-                        _shell.ShowStatusBarMessage(string.Format(StringRes.StatusBarNewItemAddPageSuccess, userSelection.Pages[0].name));
-                    }
+                    var message = itemType == NewItemType.Page
+                        ? string.Format(StringRes.StatusBarNewItemAddPageSuccess, userSelection.Pages[0].name)
+                        : string.Format(StringRes.StatusBarNewItemAddFeatureSuccess, userSelection.Features[0].name);
+
+                    _shell.ShowStatusBarMessage(message);
                 }
-                catch (WizardBackoutException)
-                {
-                    _shell.ShowStatusBarMessage(StringRes.StatusBarNewItemAddPageCancelled);
-                }
+            }
+            catch (WizardBackoutException)
+            {
+                var errorMessage = itemType == NewItemType.Page
+                    ? StringRes.StatusBarNewItemAddPageCancelled
+                    : StringRes.StatusBarNewItemAddFeatureCancelled;
+
+                _shell.ShowStatusBarMessage(errorMessage);
             }
         }
 
-        public void AddNewFeature()
+        private UserSelection GetUserSelectionByItemType(NewItemType itemType)
         {
-            if (_shell.GetActiveProjectIsWts())
-            {
-                SetContext();
-                try
-                {
-                    var userSelection = NewItemGenController.Instance.GetUserSelectionNewFeature(_shell.GetActiveProjectLanguage(), new VSStyleValuesProvider());
-
-                    if (userSelection != null)
-                    {
-                        SafeThreading.JoinableTaskFactory.Run(
-                        async () =>
-                        {
-                            await SafeThreading.JoinableTaskFactory.SwitchToMainThreadAsync();
-                            NewItemGenController.Instance.FinishGeneration(userSelection);
-                        },
-                        JoinableTaskCreationOptions.LongRunning);
-
-                        _shell.ShowStatusBarMessage(string.Format(StringRes.StatusBarNewItemAddFeatureSuccess, userSelection.Features[0].name));
-                    }
-                }
-                catch (WizardBackoutException)
-                {
-                    _shell.ShowStatusBarMessage(StringRes.StatusBarNewItemAddFeatureCancelled);
-                }
-            }
+            return itemType == NewItemType.Page
+                ? NewItemGenController.Instance.GetUserSelectionNewPage(_shell.GetActiveProjectLanguage(), new VSStyleValuesProvider())
+                : NewItemGenController.Instance.GetUserSelectionNewFeature(_shell.GetActiveProjectLanguage(), new VSStyleValuesProvider());
         }
 
         public bool Visible()
