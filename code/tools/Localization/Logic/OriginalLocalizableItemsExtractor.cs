@@ -61,12 +61,8 @@ namespace Localization
             foreach (var directory in directories)
             {
                 var templatePath = Path.Combine(baseDir, directory.Name, Routes.TemplateConfigDir);
-
-                if (!IsTemplateHidden(templatePath))
-                {
-                    _routesManager.CopyFromSourceToDest(templatePath, Routes.TemplateJsonFile);
-                    _routesManager.CopyFromSourceToDest(templatePath, Routes.TemplateDescriptionFile);
-                }
+                _routesManager.CopyFromSourceToDest(templatePath, Routes.TemplateJsonFile);
+                _routesManager.CopyFromSourceToDest(templatePath, Routes.TemplateDescriptionFile);
             }
         }
 
@@ -85,14 +81,6 @@ namespace Localization
         {
             var jsonFile = _routesManager.GetFileFromSource(Routes.WtsTemplatesRootDirPath, routeType + ".json");
             return JsonExtensions.GetValuesByName(jsonFile.FullName, "name");
-        }
-
-        private bool IsTemplateHidden(string templatePath)
-        {
-            var jsonFile = _routesManager.GetFileFromSource(Path.Combine(templatePath, Routes.TemplateJsonFile));
-            var value = JsonExtensions.GetTemplateTag(jsonFile.FullName, "wts.isHidden");
-
-            return value != null && value is "true";
         }
     }
 }

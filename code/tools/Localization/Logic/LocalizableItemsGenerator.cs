@@ -7,7 +7,6 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
-using Localization.Extensions;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
@@ -67,14 +66,10 @@ namespace Localization
                 foreach (var directory in templatesDirectories)
                 {
                     var jsonFile = new FileInfo(Path.Combine(directory.FullName, Routes.TemplateConfigDir, Routes.TemplateJsonFile));
+                    GenerateTemplateJsonFiles(jsonFile);
 
-                    if (!IsTemplateHidden(jsonFile))
-                    {
-                        GenerateTemplateJsonFiles(jsonFile);
-
-                        var mdFile = new FileInfo(Path.Combine(directory.FullName, Routes.TemplateConfigDir, Routes.TemplateDescriptionFile));
-                        GenerateTemplateMdFiles(mdFile);
-                    }
+                    var mdFile = new FileInfo(Path.Combine(directory.FullName, Routes.TemplateConfigDir, Routes.TemplateDescriptionFile));
+                    GenerateTemplateMdFiles(mdFile);
                 }
             }
         }
@@ -190,12 +185,6 @@ namespace Localization
                     }
                 }
             }
-        }
-
-        private bool IsTemplateHidden(FileInfo jsonFile)
-        {
-            var value = JsonExtensions.GetTemplateTag(jsonFile.FullName, "wts.isHidden");
-            return value != null && value is "true";
         }
     }
 }

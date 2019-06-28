@@ -31,12 +31,5 @@ namespace Localization.Extensions
             var content = GetJsonContent<List<JObject>>(path);
             return content.Select(item => item.GetValue(name, StringComparison.Ordinal).Value<string>());
         }
-
-        public static string GetTemplateTag(string path, string tagName)
-        {
-            var content = GetJsonContent<JObject>(path);
-            var value = (string)content["tags"][tagName];
-            return value;
-        }
     }
 }
